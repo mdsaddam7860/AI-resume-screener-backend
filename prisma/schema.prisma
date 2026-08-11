@@ -1,0 +1,41 @@
+// Prisma schema for AI Resume Screening HR Tool
+// Run `npm run prisma:migrate` after setting DATABASE_URL in .env
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime    @default(now())
+  candidates  Candidate[]
+}
+
+model Candidate {
+  id              String   @id @default(cuid())
+  jobId           String
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name            String
+  resumeFileName  String
+  overallScore    Int
+  // Stored as JSON-stringified arrays since SQLite has no native array type
+  matchedSkills   String
+  missingSkills   String
+  redFlags        String
+  explainability  String
+  createdAt       DateTime @default(now())
+
+  // Prevents duplicate candidate rows when the same resume file is
+  // re-uploaded for the same job (e.g. retried after a failed upload) -
+  // upsert-by-this-key replaces the old evaluation instead of adding a new row.
+  @@unique([jobId, resumeFileName])
+  @@index([jobId])
+  @@index([jobId, overallScore])
+}
