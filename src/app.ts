@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import jobRoutes from "./routes/job.routes";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
-// import { basicAuth } from "./middleware/basicAuth.middleware";
+import { basicAuth } from "./middleware/basicAuth.middleware";
 import { logger } from "./utils/logger";
 
 export function createApp(): Application {
@@ -17,7 +17,10 @@ export function createApp(): Application {
       "CORS_ORIGIN is not set - allowing requests from any origin. Set CORS_ORIGIN in production."
     );
   }
-  app.use(cors({ origin: corsOrigin || true }));
+  // credentials: true is required alongside withCredentials on the frontend
+  // so the browser will send the Basic Auth Authorization header on
+  // cross-origin requests (frontend on Vercel, backend on a different domain).
+  app.use(cors({ origin: corsOrigin || true, credentials: true }));
 
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
@@ -32,7 +35,7 @@ export function createApp(): Application {
       "BASIC_AUTH_USER/BASIC_AUTH_PASSWORD are not set - the API is unauthenticated. Set both in production."
     );
   }
-  // app.use(basicAuth);
+  app.use(basicAuth);
 
   // Feature routes
   app.use("/api/jobs", jobRoutes);
