@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import jobRoutes from "./routes/job.routes";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
-import { basicAuth } from "./middleware/basicAuth.middleware";
+// import { basicAuth } from "./middleware/basicAuth.middleware";
 import { logger } from "./utils/logger";
 
 export function createApp(): Application {
@@ -35,7 +35,7 @@ export function createApp(): Application {
       "BASIC_AUTH_USER/BASIC_AUTH_PASSWORD are not set - the API is unauthenticated. Set both in production."
     );
   }
-  app.use(basicAuth);
+  // app.use(basicAuth);
 
   // Feature routes
   app.use("/api/jobs", jobRoutes);
